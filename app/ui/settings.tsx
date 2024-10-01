@@ -24,7 +24,7 @@ function VolumeSettings({ volumeType }: VolumeSettingsProps) {
           className='bg-orange-50 hover:bg-orange-200 
           border-solid border-2 border-orange-200'
           onClick={() => {
-            let bell = new Audio('sounds/bell.wav');
+            const bell = new Audio('sounds/bell.wav');
             bell.volume = volume;
             bell.play();
           }}
@@ -39,7 +39,7 @@ function VolumeSettings({ volumeType }: VolumeSettingsProps) {
         transparent border-transparent bg-orange-200'
         min={0} max={1} step={0.01}
         value={volume}
-        onChange={(e: any) => { setVolume(Number(e.target.value)) }}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setVolume(Number(e.target.value)) }}
       />
     </>
   )

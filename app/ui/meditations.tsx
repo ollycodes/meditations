@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { checkNotification } from '@/app/ui/pwa';
 import { azeretMono } from '@/app/fonts';
 
 function ringBell(volumeType: string) {
   const local = localStorage.getItem(volumeType);
-  let bell = new Audio('sounds/bell.wav');
+  const bell = new Audio('sounds/bell.wav');
   bell.volume = local ? Number(local) : 0.5;
   bell.play();
 }
@@ -27,9 +28,8 @@ function updateSessionInfo(minutes: number, startTime: string) {
   localStorage.setItem(journey, JSON.stringify(journey));
 }
 
-function handleNotifications() {
-  const permission = useRef(Notification ? Notification.permission : null);
-  if (permission.current === 'granted') {
+function handleNotifications(permission: string | null) {
+  if (permission === 'granted') {
     new Notification('Meditation complete', {
       body: 'Let\'s carry this mindfullness with us throuhgout our day.',
       icon: 'favicons/apple-touch-icon.png'
@@ -47,9 +47,11 @@ export function Timer({ toggleTimer }: TimerProps) {
   const seconds = Number(sessionStorage.getItem('seconds'));
   const [displayTime, setDisplayTime] = useState<number>(seconds);
   const [paused, setPaused] = useState<boolean>(false);
-  const remainingTimeRef = useRef<number>(seconds * 1000);
+  // const remainingTimeRef = useRef<number>(seconds * 1000);
+  const remainingTimeRef = useRef<number>(1000);
   const intervalArray = useRef<number[]>([]);
   const startTime = Date();
+  const permission = useRef<string | null>(checkNotification());
 
   const calculateIntervals = () => {
     intervalArray.current = [];
@@ -69,7 +71,7 @@ export function Timer({ toggleTimer }: TimerProps) {
   };
 
   useEffect(() => {
-    let worker = new Worker('timer.js');
+    const worker = new Worker('timer.js');
     const intervalSettings = calculateIntervals();
 
     worker.onmessage = (e) => {
@@ -86,7 +88,7 @@ export function Timer({ toggleTimer }: TimerProps) {
             }
           }
           if (remainingTimeRef.current <= 0) {
-            handleNotifications()
+            handleNotifications(permission.current);
             updateSessionInfo(seconds / 60, startTime);
             worker.postMessage({ command: 'stop' })
             toggleTimer();
@@ -114,9 +116,9 @@ export function Timer({ toggleTimer }: TimerProps) {
     return (num < 10) ? '0' + num : num.toString();
   }
 
-  let hh = pretty(Math.floor(displayTime / 3600));
-  let mm = pretty(Math.floor(displayTime / 60 % 60));
-  let ss = pretty(Math.floor(displayTime % 60));
+  const hh = pretty(Math.floor(displayTime / 3600));
+  const mm = pretty(Math.floor(displayTime / 60 % 60));
+  const ss = pretty(Math.floor(displayTime % 60));
   document.title = `${hh}:${mm}:${ss}`;
 
   return (

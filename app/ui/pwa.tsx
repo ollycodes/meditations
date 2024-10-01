@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 
-const checkNotification = (): NotificationPermission | null => {
+export const checkNotification = (): NotificationPermission | null => {
   return (typeof Notification !== 'undefined' ? Notification.permission : null)
 }
 
 export function PermissionRequest() {
-  const [permission, setPermission] = useState<String | null>(checkNotification);
+  const [permission, setPermission] = useState<string | null>(checkNotification);
 
   useEffect(() => {
     const check = async () => {

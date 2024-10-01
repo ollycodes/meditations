@@ -9,7 +9,9 @@ interface TimerFormProps {
 export function TimerForm({ toggleTimer }: TimerFormProps) {
   const [minutes, setMinutes] = useState(5);
 
-  const handleInput = (e: any): any => { setMinutes(Number(e.target.value)) }
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMinutes(Number(e.target.value))
+  }
   const handleClick = () => {
     if (typeof minutes === 'number') {
       sessionStorage.setItem('seconds', String(minutes * 60));
