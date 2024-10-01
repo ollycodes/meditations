@@ -14,7 +14,7 @@ function VolumeSettings({ volumeType }: VolumeSettingsProps) {
 
   useEffect(() => {
     localStorage.setItem(localName, volume.toString());
-  }, [volume])
+  }, [volume, localName])
 
   return (
     <>

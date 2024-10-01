@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react'
+import { useState, useEffect, useRef } from 'react';
 import { checkNotification } from '@/app/ui/pwa';
 import { azeretMono } from '@/app/fonts';
 
@@ -47,31 +48,27 @@ export function Timer({ toggleTimer }: TimerProps) {
   const seconds = Number(sessionStorage.getItem('seconds'));
   const [displayTime, setDisplayTime] = useState<number>(seconds);
   const [paused, setPaused] = useState<boolean>(false);
-  // const remainingTimeRef = useRef<number>(seconds * 1000);
-  const remainingTimeRef = useRef<number>(1000);
+  const remainingTimeRef = useRef<number>(seconds * 1000);
+  // const remainingTimeRef = useRef<number>(1000);
   const intervalArray = useRef<number[]>([]);
   const startTime = Date();
   const permission = useRef<string | null>(checkNotification());
 
-  const calculateIntervals = () => {
-    intervalArray.current = [];
-    const local = localStorage.getItem('intervalSettings');
-    const intervalSettings = local ? JSON.parse(local) : {
-      'on': false,
-      'distance': 300,
-    }
-
-    if (intervalSettings.on) {
-      for (let i = (seconds / intervalSettings.distance) - 1; i > 0; i--) {
-        intervalArray.current.push(seconds - (intervalSettings.distance * i));
-      }
-    }
-
-    return (intervalSettings)
-  };
-
   useEffect(() => {
     const worker = new Worker('timer.js');
+    const calculateIntervals = () => {
+      intervalArray.current = [];
+      const local = localStorage.getItem('intervalSettings');
+      const intervalSettings = local ? JSON.parse(local) : { 'on': false, 'distance': 300, }
+
+      if (intervalSettings.on) {
+        for (let i = (seconds / intervalSettings.distance) - 1; i > 0; i--) {
+          intervalArray.current.push(seconds - (intervalSettings.distance * i));
+        }
+      }
+
+      return (intervalSettings)
+    };
     const intervalSettings = calculateIntervals();
 
     worker.onmessage = (e) => {
@@ -110,7 +107,7 @@ export function Timer({ toggleTimer }: TimerProps) {
       worker.postMessage({ command: 'stop' });
       worker.terminate();
     }
-  }, [paused])
+  }, [paused, seconds, startTime, toggleTimer])
 
   const pretty = (num: number): string => {
     return (num < 10) ? '0' + num : num.toString();

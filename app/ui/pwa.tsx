@@ -30,7 +30,7 @@ export function PermissionRequest() {
       }
     }
     check();
-  }, []);
+  }, [permission]);
 
   const showPermissions = () => {
     switch (permission) {
@@ -90,7 +90,7 @@ export function InstallPrompt() {
   const [isStandalone, setIsStandalone] = useState(false)
 
   useEffect(() => {
-    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream)
+    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !('MSStream' in window));
     setIsStandalone(window.matchMedia('(display-mode: standalone)').matches)
 
   }, [])
@@ -110,7 +110,7 @@ export function InstallPrompt() {
               <span role="img" aria-label="share icon">
                 {' ⎋ '}
               </span>
-              and then tap "Add to Home Screen"
+              and then tap &ldquo;Add to Home Screen&rdquo;
               <span role="img" aria-label="plus icon">
                 {' '}➕{' '}
               </span>.
