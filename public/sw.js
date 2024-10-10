@@ -1,4 +1,3 @@
-// const { request } = require("http");
 const CACHE_NAME = 'meditations-v2';
 
 const urlsToCache = [
@@ -65,17 +64,3 @@ self.addEventListener('fetch', (event) => {
     addToCache(event.request)
   );
 });
-
-
-// caches.match(event.request).then((response) => {
-//   if (response) { return response; }
-//   try {
-//     const networkResponse = await fetch(event.request);
-//     addToCache(event.request, networkResponse.clone());
-//     return networkResponse;
-//   } catch (error) {
-//     console.log('network error.')
-//   }
-//
-// return response || fetch(event.request);
-// })
