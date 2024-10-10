@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Simple Meditations',
     short_name: 'Meditations',
-    description: 'A simple tool for Meditating.',
+    description: 'An easy web app for meditating.',
     scope: '/',
     start_url: '/',
     display: 'standalone',

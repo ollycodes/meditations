@@ -4,7 +4,8 @@ import "@/app/globals.css";
 
 export const metadata: Metadata = {
   title: "Simple Meditations",
-  description: "Meditate without the hassle.",
+  description: "Meditate without hassle.",
+  manifest: "/manifest.ts",
 };
 
 export default function RootLayout({

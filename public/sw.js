@@ -1,4 +1,5 @@
-const CACHE_NAME = 'meditations-v1';
+// const { request } = require("http");
+const CACHE_NAME = 'meditations-v2';
 
 const urlsToCache = [
   '/',
@@ -13,12 +14,33 @@ const urlsToCache = [
   'icons/safari-pinned-tab.svg',
 ];
 
+async function addToCache(request) {
+  const cacheResponse = await caches.match(request);
+  if (cacheResponse) {
+    return cacheResponse;
+  }
+
+  try {
+    const networkResponse = await fetch(request);
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(request, response)
+    return networkResponse;
+  } catch (error) {
+    console.log('network error.')
+  }
+
+  return new Response('Network error happened.', {
+    status: 408,
+    headers: { 'Content-Type': 'text/plain' }
+  })
+}
+
 self.addEventListener('install', (event) => {
   console.log('caching files...')
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('cache opened.')
-      return cache.addAll(urlsToCache);
+      return cache.addAll(urlsToCache)
     })
   );
 });
@@ -40,8 +62,20 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
+    addToCache(event.request)
   );
 });
+
+
+// caches.match(event.request).then((response) => {
+//   if (response) { return response; }
+//   try {
+//     const networkResponse = await fetch(event.request);
+//     addToCache(event.request, networkResponse.clone());
+//     return networkResponse;
+//   } catch (error) {
+//     console.log('network error.')
+//   }
+//
+// return response || fetch(event.request);
+// })
