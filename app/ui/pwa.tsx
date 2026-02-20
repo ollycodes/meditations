@@ -9,7 +9,6 @@ export function PermissionRequest() {
 
   useEffect(() => {
     let permissionStatus: PermissionStatus | null = null;
-    setPermission(checkNotification());
 
     const subscribe = async () => {
       try {
@@ -93,13 +92,12 @@ export function PermissionRequest() {
 }
 
 export function InstallPrompt() {
-  const [isIOS, setIsIOS] = useState(false)
-  const [isStandalone, setIsStandalone] = useState(false)
-
-  useEffect(() => {
-    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !('MSStream' in window));
-    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
-  }, [])
+  const isIOS = typeof navigator !== 'undefined'
+    ? /iPad|iPhone|iPod/.test(navigator.userAgent) && !('MSStream' in window)
+    : false;
+  const isStandalone = typeof window !== 'undefined'
+    ? window.matchMedia('(display-mode: standalone)').matches
+    : false;
 
 
   if (isStandalone) {

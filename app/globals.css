@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* WebKit and Blink */
 input::-webkit-outer-spin-button,

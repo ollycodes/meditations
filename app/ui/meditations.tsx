@@ -115,7 +115,10 @@ export function Timer({ toggleTimer }: TimerProps) {
   const hh = pretty(Math.floor(displayTime / 3600));
   const mm = pretty(Math.floor(displayTime / 60 % 60));
   const ss = pretty(Math.floor(displayTime % 60));
-  document.title = `${hh}:${mm}:${ss}`;
+
+  useEffect(() => {
+    document.title = `${hh}:${mm}:${ss}`;
+  }, [hh, mm, ss]);
 
   return (
     <>
