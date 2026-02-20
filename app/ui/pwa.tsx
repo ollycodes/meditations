@@ -5,32 +5,39 @@ export const checkNotification = (): NotificationPermission | null => {
 }
 
 export function PermissionRequest() {
-  const [permission, setPermission] = useState<string | null>(checkNotification);
+  const [permission, setPermission] = useState<NotificationPermission | null>(checkNotification);
 
   useEffect(() => {
-    const check = async () => {
-      setPermission(checkNotification);
+    let permissionStatus: PermissionStatus | null = null;
+    setPermission(checkNotification());
 
-      if (!permission) {
-        return
-      }
-
+    const subscribe = async () => {
       try {
-        const permissionStatus = (await navigator.permissions?.query({ name: 'notifications' }) || null)
-
-        if (permissionStatus) {
-          permissionStatus.onchange = () => {
-            setPermission(permissionStatus.state);
-          };
-          setPermission(permissionStatus.state);
+        permissionStatus = (await navigator.permissions?.query({ name: 'notifications' })) || null;
+        if (!permissionStatus) {
+          return;
         }
+
+        const normalized = permissionStatus.state === 'prompt' ? 'default' : permissionStatus.state;
+        setPermission(normalized);
+        permissionStatus.onchange = () => {
+          const nextState = permissionStatus?.state;
+          const nextPermission = nextState === 'prompt' ? 'default' : nextState;
+          setPermission(nextPermission || checkNotification());
+        };
       } catch (err) {
         console.log('error:', err)
-        setPermission(null);
+        setPermission(checkNotification());
       }
-    }
-    check();
-  }, [permission]);
+    };
+
+    subscribe();
+    return () => {
+      if (permissionStatus) {
+        permissionStatus.onchange = null;
+      }
+    };
+  }, []);
 
   const showPermissions = () => {
     switch (permission) {
@@ -45,7 +52,7 @@ export function PermissionRequest() {
                 if (permission === 'granted') {
                   new Notification('How\'s it hanging? 😎', {
                     body: '🌊 The mind is a wonderful place.',
-                    icon: 'icons/apple-touch-icon.png'
+                    icon: '/icons/apple-touch-icon.png'
                   })
                 }
               }}
@@ -93,14 +100,6 @@ export function InstallPrompt() {
     setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !('MSStream' in window));
     setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
   }, [])
-
-  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').then((registration) => {
-      console.log('Service Worker registered with scope:', registration.scope);
-    }).catch((error) => {
-      console.error('Service Worker registration failed:', error);
-    });
-  }
 
 
   if (isStandalone) {

@@ -1,11 +1,10 @@
-import React from 'react'
 import { useState, useEffect, useRef } from 'react';
 import { checkNotification } from '@/app/ui/pwa';
 import { azeretMono } from '@/app/fonts';
 
 function ringBell(volumeType: string) {
   const local = localStorage.getItem(volumeType);
-  const bell = new Audio('sounds/bell.wav');
+  const bell = new Audio('/sounds/bell.wav');
   bell.volume = local ? Number(local) : 0.5;
   bell.play();
 }
@@ -26,14 +25,14 @@ function updateSessionInfo(minutes: number, startTime: string) {
     minutes,
   });
 
-  localStorage.setItem(journey, JSON.stringify(journey));
+  localStorage.setItem('journey', JSON.stringify(journey));
 }
 
 function handleNotifications(permission: string | null) {
   if (permission === 'granted') {
     new Notification('Meditation complete', {
       body: 'Let\'s carry this mindfullness with us throuhgout our day.',
-      icon: 'favicons/apple-touch-icon.png'
+      icon: '/icons/apple-touch-icon.png'
     })
   }
   document.title = "Finished!";
@@ -45,17 +44,17 @@ interface TimerProps {
 }
 
 export function Timer({ toggleTimer }: TimerProps) {
-  const seconds = Number(sessionStorage.getItem('seconds'));
+  const savedSeconds = Number(sessionStorage.getItem('seconds'));
+  const seconds = Number.isFinite(savedSeconds) && savedSeconds > 0 ? savedSeconds : 300;
   const [displayTime, setDisplayTime] = useState<number>(seconds);
   const [paused, setPaused] = useState<boolean>(false);
   const remainingTimeRef = useRef<number>(seconds * 1000);
-  // const remainingTimeRef = useRef<number>(1000);
   const intervalArray = useRef<number[]>([]);
-  const startTime = Date();
+  const startTime = useRef<string>(Date());
   const permission = useRef<string | null>(checkNotification());
 
   useEffect(() => {
-    const worker = new Worker('timer.js');
+    const worker = new Worker('/timer.js');
     const calculateIntervals = () => {
       intervalArray.current = [];
       const local = localStorage.getItem('intervalSettings');
@@ -86,7 +85,7 @@ export function Timer({ toggleTimer }: TimerProps) {
           }
           if (remainingTimeRef.current <= 0) {
             handleNotifications(permission.current);
-            updateSessionInfo(seconds / 60, startTime);
+            updateSessionInfo(seconds / 60, startTime.current);
             worker.postMessage({ command: 'stop' })
             toggleTimer();
           }
@@ -107,7 +106,7 @@ export function Timer({ toggleTimer }: TimerProps) {
       worker.postMessage({ command: 'stop' });
       worker.terminate();
     }
-  }, [paused, seconds, startTime, toggleTimer])
+  }, [paused, seconds, toggleTimer])
 
   const pretty = (num: number): string => {
     return (num < 10) ? '0' + num : num.toString();
