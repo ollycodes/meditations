@@ -1,6 +1,6 @@
 // Shared class names so every card, button and chip follows the same pattern:
 // warm orange cards on the amber background, emerald for "go", pink for
-// "stop", indigo for the running clock.
+// "stop".
 
 export const card = 'bg-orange-100 border-2 border-orange-200 rounded-lg';
 
@@ -12,6 +12,10 @@ export const softButton =
 export const startButton =
   'bg-emerald-100 hover:bg-emerald-200 active:bg-emerald-300 ' +
   'border-2 border-emerald-200 rounded-lg transition-colors';
+
+export const stopButton =
+  'bg-pink-100 hover:bg-pink-200 active:bg-pink-300 ' +
+  'border-2 border-pink-200 rounded-lg transition-colors';
 
 export const chip = (selected: boolean) =>
   `py-2 rounded-lg border-2 text-sm transition-colors ${selected

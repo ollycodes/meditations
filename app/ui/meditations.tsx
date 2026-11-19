@@ -2,6 +2,7 @@ import React from 'react'
 import { useState, useEffect, useRef } from 'react';
 import { showNotification, useWakeLock } from '@/app/ui/pwa';
 import { azeretMono } from '@/app/fonts';
+import { card, softButton, startButton, stopButton } from '@/app/ui/styles';
 
 export const JOURNEY_KEY = 'journey';
 
@@ -152,49 +153,66 @@ export function Timer({ toggleTimer }: TimerProps) {
     );
   }
 
+  const sessionMinutes = Math.round(seconds / 60);
+  const progress = seconds > 0 ? Math.min(100, (1 - displayTime / seconds) * 100) : 0;
+
   return (
     <div className='flex flex-col gap-3'>
-      <div
-        id='countdown-label'
-        role='timer'
-        aria-label={paused ? 'Timer paused.' : 'Timer counting down.'}
-        className={`${azeretMono.className}
-          py-8 bg-indigo-400 text-white tabular-nums
-          border-2 border-indigo-500 rounded-lg
-          text-center text-5xl`}>
-        {hh}:{mm}:{ss}
-      </div>
-      <p className='h-5 text-sm font-light text-center'>{paused ? 'Paused' : ''}</p>
+      <h1 className='text-center text-2xl'>
+        {sessionMinutes} {sessionMinutes === 1 ? 'minute' : 'minutes'} of stillness
+      </h1>
+
+      <section className={`${card} p-4 flex flex-col items-center gap-4`}>
+        <span className='font-light' aria-live='polite'>
+          {paused ? 'Paused' : 'Time remaining'}
+        </span>
+        <div
+          id='countdown-label'
+          role='timer'
+          aria-label={paused ? 'Timer paused.' : 'Timer counting down.'}
+          className={`${azeretMono.className} text-5xl font-light tabular-nums
+            ${paused ? 'opacity-50' : ''} transition-opacity`}>
+          {hh}:{mm}:{ss}
+        </div>
+        {/* Same track and fill colors as the volume sliders. */}
+        <div
+          className='w-full h-2 rounded-full bg-orange-200 overflow-hidden'
+          role='progressbar'
+          aria-label='Session progress'
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(progress)}
+        >
+          <div
+            className='h-full rounded-full bg-orange-400 transition-[width] duration-300'
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </section>
 
       <button
         type='button'
-        className={`${paused
-          ? 'bg-emerald-100 hover:bg-emerald-200 active:bg-emerald-300 border-emerald-200'
-          : 'bg-pink-200 hover:bg-pink-300 active:bg-pink-400 border-pink-300'}
-          py-6 text-4xl border-2 rounded-lg transition-colors`}
+        className={`${paused ? startButton : stopButton} py-6 text-2xl`}
         onClick={() => setPaused(!paused)}
         aria-label={paused ? 'Resume meditation session.' : 'Pause meditation session.'}
       >{paused ? 'Resume' : 'Pause'}</button>
 
-      <button
-        type='button'
-        className='py-4 text-2xl
-          bg-pink-100 hover:bg-pink-200 active:bg-pink-300 border-2 border-pink-200
-          rounded-lg transition-colors'
-        onClick={() => {
-          setPaused(true)
-          toggleTimer()
-        }}
-      >Cancel</button>
-
-      <button
-        type='button'
-        className='py-3 text-neutral-300
-          bg-neutral-800 hover:bg-neutral-900 active:bg-black
-          border-2 border-neutral-700 rounded-lg transition-colors'
-        onClick={() => setDimmed(true)}
-        aria-label='Dim the screen while the timer keeps running.'
-      >Dim screen</button>
+      <div className='grid grid-cols-2 gap-3'>
+        <button
+          type='button'
+          className={`${softButton} py-3`}
+          onClick={() => {
+            setPaused(true)
+            toggleTimer()
+          }}
+        >Cancel</button>
+        <button
+          type='button'
+          className={`${softButton} py-3`}
+          onClick={() => setDimmed(true)}
+          aria-label='Dim the screen while the timer keeps running.'
+        >Dim screen</button>
+      </div>
 
       <p className='text-sm font-light text-center'>
         {wakeLockSupported
