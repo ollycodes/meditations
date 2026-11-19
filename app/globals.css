@@ -13,3 +13,43 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+/* Range sliders in the orange palette. --fill is set inline to the value %. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 1.5rem;
+  background: transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: linear-gradient(to right, #fb923c var(--fill, 50%), #fed7aa var(--fill, 50%));
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 1.25rem;
+  width: 1.25rem;
+  margin-top: -0.375rem;
+  border-radius: 9999px;
+  background: #fb923c;
+  border: 2px solid #fff7ed;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+}
+input[type="range"]::-moz-range-track {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #fed7aa;
+}
+input[type="range"]::-moz-range-progress {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #fb923c;
+}
+input[type="range"]::-moz-range-thumb {
+  height: 1rem;
+  width: 1rem;
+  border-radius: 9999px;
+  background: #fb923c;
+  border: 2px solid #fff7ed;
+}

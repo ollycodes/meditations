@@ -13,7 +13,8 @@ A small, installable meditation timer for the web. Pick a duration, press start,
 
 ## Features
 
-- **Session timer** in 5-minute steps (or type any length), with pause and resume
+- **Session timer** with quick lengths (5, 10, 20, 30 min), 5-minute steps or any typed length, with pause and resume
+- **Fits on one screen**: every view fits a phone screen without scrolling, down to an iPhone SE with Safari toolbars showing
 - **Interval bells** every 2, 5 or 10 minutes, with their own volume
 - **End-of-session notification** and bell
 - **Keeps the screen awake** during a session ([Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API)), plus a **dim mode** so the phone can rest face-up without lighting up the room

@@ -153,61 +153,54 @@ export function Timer({ toggleTimer }: TimerProps) {
   }
 
   return (
-    <>
+    <div className='flex flex-col gap-3'>
       <div
-        className="flex flex-col items-center justify-center w-full max-w-lg h-screen">
-        <label
-          id='countdown-label'
-          aria-label={`${paused ? 'Timer Currently Paused.' : 'Timer currently Counting Down.'}`}
-          className={`${azeretMono.className}
-            py-6 w-full mb-10
-            bg-indigo-400 text-white
-            border-solid border-2 border-indigo-500
-            text-center break-all text-5xl
-            rounded-lg`}>
-          {hh}:{mm}:{ss}
-        </label>
+        id='countdown-label'
+        role='timer'
+        aria-label={paused ? 'Timer paused.' : 'Timer counting down.'}
+        className={`${azeretMono.className}
+          py-8 bg-indigo-400 text-white tabular-nums
+          border-2 border-indigo-500 rounded-lg
+          text-center text-5xl`}>
+        {hh}:{mm}:{ss}
+      </div>
+      <p className='h-5 text-sm font-light text-center'>{paused ? 'Paused' : ''}</p>
 
-        <button
-          type='button'
-          className={`${paused ?
-            "bg-green-200 hover:bg-green-300 active:bg-green-400 border-green-300" :
-            "bg-pink-200 hover:bg-pink-300 active:bg-pink-400 border-pink-300"}
-            py-6 pw-10 w-full
-            text-white text-center text-5xl
-            border-solid border-2
-            rounded-lg`}
-          onClick={() => setPaused(!paused)}
-          aria-label={paused ? 'Resume Meditation Session.' : 'Pause Meditation Session.'}
-        >{paused ? 'Resume' : 'Pause'}</button>
+      <button
+        type='button'
+        className={`${paused
+          ? 'bg-emerald-100 hover:bg-emerald-200 active:bg-emerald-300 border-emerald-200'
+          : 'bg-pink-200 hover:bg-pink-300 active:bg-pink-400 border-pink-300'}
+          py-6 text-4xl border-2 rounded-lg transition-colors`}
+        onClick={() => setPaused(!paused)}
+        aria-label={paused ? 'Resume meditation session.' : 'Pause meditation session.'}
+      >{paused ? 'Resume' : 'Pause'}</button>
 
-        <button
-          type='button'
-          className='py-4 mt-5 pw-10 w-full
-            bg-pink-300 hover:bg-pink-400 active:bg-pink-500 border-pink-400
-            text-white text-center text-5xl
-            border-solid border-2 rounded-lg'
-          onClick={() => {
-            setPaused(true)
-            toggleTimer()
-          }}
-        >Cancel</button>
+      <button
+        type='button'
+        className='py-4 text-2xl
+          bg-pink-100 hover:bg-pink-200 active:bg-pink-300 border-2 border-pink-200
+          rounded-lg transition-colors'
+        onClick={() => {
+          setPaused(true)
+          toggleTimer()
+        }}
+      >Cancel</button>
 
-        <button
-          type='button'
-          className='py-3 mt-5 w-full
-            bg-neutral-800 hover:bg-neutral-900 text-neutral-300
-            text-center text-xl rounded-lg'
-          onClick={() => setDimmed(true)}
-          aria-label='Dim the screen while the timer keeps running.'
-        >Dim screen</button>
+      <button
+        type='button'
+        className='py-3 text-neutral-300
+          bg-neutral-800 hover:bg-neutral-900 active:bg-black
+          border-2 border-neutral-700 rounded-lg transition-colors'
+        onClick={() => setDimmed(true)}
+        aria-label='Dim the screen while the timer keeps running.'
+      >Dim screen</button>
 
-        <p className='mt-4 text-sm text-center text-neutral-600'>
-          {wakeLockSupported
-            ? 'Your screen will stay on until the session ends.'
-            : 'Keep this screen open. This browser can\'t keep the screen awake, and phones pause web timers when the screen turns off.'}
-        </p>
-      </div >
-    </>
+      <p className='text-sm font-light text-center'>
+        {wakeLockSupported
+          ? 'Your screen will stay on until the session ends.'
+          : 'Keep this screen open. This browser can\'t keep the screen awake, and phones pause web timers when the screen turns off.'}
+      </p>
+    </div>
   );
 }

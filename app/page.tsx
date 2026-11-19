@@ -22,15 +22,18 @@ export default function Home() {
 
   return (
     <>
+      {/* dvh, not vh: on phones 100vh is taller than the visible area while the
+          browser toolbars are showing, which made the page scroll and jump. */}
       <main
-        className="flex flex-col items-center justify-center
-        p-6 h-screen
-        bg-gradient-to-t from-amber-200 via-amber-100 to-amber-50">
-        {timer ? (
-          <Timer toggleTimer={toggleTimer} />
-        ) : (
-          <TimerForm toggleTimer={toggleTimer} />
-        )}
+        className="h-dvh overflow-y-auto overscroll-none flex flex-col
+        px-4 py-6 bg-gradient-to-t from-amber-200 via-amber-100 to-amber-50">
+        <div className="w-full max-w-sm m-auto">
+          {timer ? (
+            <Timer toggleTimer={toggleTimer} />
+          ) : (
+            <TimerForm toggleTimer={toggleTimer} />
+          )}
+        </div>
       </main>
     </>
   );
