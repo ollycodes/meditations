@@ -1,5 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useSyncExternalStore } from 'react';
 import { Settings } from '@/app/ui/settings';
+import { JOURNEY_KEY, Journey } from '@/app/ui/meditations';
+
+const subscribeToStorage = (onChange: () => void) => {
+  window.addEventListener('storage', onChange);
+  return () => window.removeEventListener('storage', onChange);
+};
 
 
 interface TimerFormProps {
@@ -8,16 +14,23 @@ interface TimerFormProps {
 
 export function TimerForm({ toggleTimer }: TimerFormProps) {
   const [minutes, setMinutes] = useState(5);
+  // Read on the client only; the page is prerendered without localStorage.
+  const rawJourney = useSyncExternalStore(
+    subscribeToStorage,
+    () => localStorage.getItem(JOURNEY_KEY),
+    () => null,
+  );
+  const journey: Journey | null = rawJourney ? JSON.parse(rawJourney) : null;
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMinutes(Number(e.target.value))
   }
   const handleClick = () => {
-    if (typeof minutes === 'number') {
-      sessionStorage.setItem('seconds', String(minutes * 60));
+    if (Number.isFinite(minutes) && minutes >= 1) {
+      sessionStorage.setItem('seconds', String(Math.round(minutes * 60)));
       toggleTimer();
     } else {
-      alert('Variable is not a number!');
+      alert('Please choose at least 1 minute.');
     }
   };
 
@@ -45,6 +58,7 @@ export function TimerForm({ toggleTimer }: TimerFormProps) {
             name='minutes'
             type="number"
             step="1"
+            min="1"
             className="py-6 w-full 
               bg-gray-100 font-light text-5xl text-center
               hover:bg-gray-200
@@ -93,6 +107,14 @@ export function TimerForm({ toggleTimer }: TimerFormProps) {
           >Start</button>
 
           <Settings />
+
+          {journey && journey.sessionCount > 0 && (
+            <p className='pt-2 text-sm font-light text-center'>
+              {journey.sessionCount} {journey.sessionCount === 1 ? 'session' : 'sessions'}
+              {' · '}
+              {Math.round(journey.minutesCount)} {Math.round(journey.minutesCount) === 1 ? 'minute' : 'minutes'} meditated
+            </p>
+          )}
         </div>
       </div>
     </>

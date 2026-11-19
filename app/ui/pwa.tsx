@@ -4,6 +4,66 @@ export const checkNotification = (): NotificationPermission | null => {
   return (typeof Notification !== 'undefined' ? Notification.permission : null)
 }
 
+// Android Chrome throws on `new Notification()` from a page; notifications must
+// go through the service worker there. Fall back to the constructor elsewhere.
+export async function showNotification(title: string, options: NotificationOptions) {
+  if (checkNotification() !== 'granted') return;
+  try {
+    const registration = await navigator.serviceWorker?.getRegistration();
+    if (registration) {
+      await registration.showNotification(title, options);
+      return;
+    }
+  } catch (err) {
+    console.log('Service worker notification failed:', err);
+  }
+  try {
+    new Notification(title, options);
+  } catch (err) {
+    console.log('Notification failed:', err);
+  }
+}
+
+// Keeps the screen awake while `active` is true. Browsers drop the lock when
+// the page is hidden, so it's re-requested whenever the page becomes visible.
+export function useWakeLock(active: boolean): boolean {
+  const [supported] = useState(() => typeof navigator !== 'undefined' && 'wakeLock' in navigator);
+
+  useEffect(() => {
+    if (!active || !supported) return;
+    let sentinel: WakeLockSentinel | null = null;
+    let cancelled = false;
+
+    const request = async () => {
+      try {
+        const lock = await navigator.wakeLock.request('screen');
+        if (cancelled) {
+          lock.release();
+        } else {
+          sentinel = lock;
+        }
+      } catch (err) {
+        console.log('Wake lock unavailable:', err);
+      }
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && (!sentinel || sentinel.released)) {
+        request();
+      }
+    };
+
+    request();
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      sentinel?.release();
+    };
+  }, [active, supported]);
+
+  return supported;
+}
+
 export function PermissionRequest() {
   const [permission, setPermission] = useState<string | null>(checkNotification);
 
@@ -42,12 +102,10 @@ export function PermissionRequest() {
               className='bg-orange-50 hover:bg-orange-200 
           border-solid border-2 border-orange-200'
               onClick={() => {
-                if (permission === 'granted') {
-                  new Notification('How\'s it hanging? 😎', {
-                    body: '🌊 The mind is a wonderful place.',
-                    icon: 'icons/apple-touch-icon.png'
-                  })
-                }
+                showNotification('How\'s it hanging? 😎', {
+                  body: '🌊 The mind is a wonderful place.',
+                  icon: '/icons/apple-touch-icon.png'
+                })
               }}
             >Test</button>
           </div>)
@@ -86,14 +144,9 @@ export function PermissionRequest() {
 }
 
 export function InstallPrompt() {
-  const [isIOS, setIsIOS] = useState(false)
-  const [isStandalone, setIsStandalone] = useState(false)
-
-  useEffect(() => {
-    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !('MSStream' in window));
-    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches)
-
-  }, [])
+  // Only rendered once the settings menu is opened, so `window` is available.
+  const [isIOS] = useState(() => /iPad|iPhone|iPod/.test(navigator.userAgent) && !('MSStream' in window))
+  const [isStandalone] = useState(() => window.matchMedia('(display-mode: standalone)').matches)
 
   if (isStandalone) {
     return null
