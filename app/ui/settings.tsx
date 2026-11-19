@@ -24,7 +24,7 @@ function VolumeSettings({ volumeType }: VolumeSettingsProps) {
           className='bg-orange-50 hover:bg-orange-200 
           border-solid border-2 border-orange-200'
           onClick={() => {
-            const bell = new Audio('sounds/bell.wav');
+            const bell = new Audio('/sounds/bell.wav');
             bell.volume = volume;
             bell.play();
           }}
