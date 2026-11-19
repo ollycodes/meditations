@@ -1,7 +1,6 @@
 import React from 'react'
 import { useState, useEffect, useRef } from 'react';
 import { showNotification, useWakeLock } from '@/app/ui/pwa';
-import { azeretMono } from '@/app/fonts';
 import { card, softButton, startButton, stopButton } from '@/app/ui/styles';
 
 export const JOURNEY_KEY = 'journey';
@@ -63,6 +62,24 @@ function finishSession(minutes: number, startTime: string) {
     icon: '/icons/apple-touch-icon.png'
   });
   updateSessionInfo(minutes, startTime);
+}
+
+// Fraunces has proportional digits, so each character gets a fixed-width
+// slot; otherwise the clock would wobble every second.
+function Clock({ time }: { time: string }) {
+  return (
+    <>
+      <span className='sr-only'>{time}</span>
+      <span aria-hidden='true'>
+        {[...time].map((char, i) => (
+          <span
+            key={i}
+            className={`inline-block text-center ${char === ':' ? 'w-[0.3em]' : 'w-[0.6em]'}`}
+          >{char}</span>
+        ))}
+      </span>
+    </>
+  );
 }
 
 const pretty = (num: number): string => {
@@ -127,28 +144,29 @@ export function Timer({ toggleTimer }: TimerProps) {
     }
   }, [paused, seconds, toggleTimer])
 
-  const hh = pretty(Math.floor(displayTime / 3600));
-  const mm = pretty(Math.floor(displayTime / 60 % 60));
+  const hours = Math.floor(displayTime / 3600);
+  const minutes = Math.floor(displayTime / 60 % 60);
   const ss = pretty(Math.floor(displayTime % 60));
+  // Like the home screen's plain "5": 4:58, or 1:04:58 for long sessions.
+  const time = hours > 0 ? `${hours}:${pretty(minutes)}:${ss}` : `${minutes}:${ss}`;
 
   useEffect(() => {
-    document.title = paused ? `Paused · ${hh}:${mm}:${ss}` : `${hh}:${mm}:${ss}`;
-  }, [hh, mm, ss, paused]);
+    document.title = paused ? `Paused · ${time}` : time;
+  }, [time, paused]);
   useEffect(() => () => { document.title = 'Simple Meditations'; }, []);
 
   if (dimmed) {
     return (
       <button
         type='button'
-        className={`${azeretMono.className}
-          fixed inset-0 z-50 w-full h-full
+        className={`fixed inset-0 z-50 w-full h-full
           flex flex-col items-center justify-center
-          bg-black text-neutral-700 text-5xl`}
+          bg-black text-neutral-700 text-6xl font-light`}
         onClick={() => setDimmed(false)}
         aria-label='Screen dimmed. Tap to show controls.'
       >
-        {hh}:{mm}:{ss}
-        <span className='mt-6 text-base font-sans'>Tap to show controls</span>
+        <Clock time={time} />
+        <span className='mt-6 text-base'>Tap to show controls</span>
       </button>
     );
   }
@@ -170,9 +188,8 @@ export function Timer({ toggleTimer }: TimerProps) {
           id='countdown-label'
           role='timer'
           aria-label={paused ? 'Timer paused.' : 'Timer counting down.'}
-          className={`${azeretMono.className} text-5xl font-light tabular-nums
-            ${paused ? 'opacity-50' : ''} transition-opacity`}>
-          {hh}:{mm}:{ss}
+          className={`text-6xl font-light ${paused ? 'opacity-50' : ''} transition-opacity`}>
+          <Clock time={time} />
         </div>
         {/* Same track and fill colors as the volume sliders. */}
         <div

@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Anything outside the page box (behind Safari's floating toolbar, overscroll)
+   shows the html background, so match the gradient's ends instead of white. */
+html {
+  background-color: #fde68a; /* amber-200, the gradient's bottom */
+}
+
 /* WebKit and Blink */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {

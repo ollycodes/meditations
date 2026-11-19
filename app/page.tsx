@@ -26,7 +26,8 @@ export default function Home() {
           browser toolbars are showing, which made the page scroll and jump. */}
       <main
         className="h-dvh overflow-y-auto overscroll-none flex flex-col
-        px-4 py-6 bg-gradient-to-t from-amber-200 via-amber-100 to-amber-50">
+        px-4 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]
+        bg-gradient-to-t from-amber-200 via-amber-100 to-amber-50">
         <div className="w-full max-w-sm m-auto">
           {timer ? (
             <Timer toggleTimer={toggleTimer} />

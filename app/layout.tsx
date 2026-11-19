@@ -1,10 +1,19 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { fraunces } from "@/app/fonts";
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
   title: "Simple Meditations",
   description: "Meditate without the hassle.",
+};
+
+// viewport-fit=cover lets the page draw behind Safari's floating toolbar and
+// the notch; theme-color tints the browser's own bars to match the top.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#fffbeb",
 };
 
 export default function RootLayout({
@@ -19,7 +28,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="Simple Meditations" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="white" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="192x192" href="/icons/android-chrome-192x192.png" />
@@ -28,7 +37,6 @@ export default function RootLayout({
         <meta name="application-name" content="Meditations" />
         <meta name="msapplication-TileColor" content="#fde68a" />
         <meta name="msapplication-TileImage" content="/icons/mstile-144x144.png" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className={fraunces.className}>{children}</body>
     </html>
