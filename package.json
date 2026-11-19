@@ -1,12 +1,12 @@
 {
   "name": "simple-meditations",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev --experimental-https --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "react": "^18",
@@ -21,6 +21,6 @@
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "eslint": "^9",
-    "eslint-config-next": "16.0.3"
+    "eslint-config-next": "16.4.5"
   }
 }

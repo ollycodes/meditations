@@ -1,18 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TimerForm } from '@/app/ui/forms';
 import { Timer } from '@/app/ui/meditations';
 
 export default function Home() {
-  const [timer, toggleTimer] = useState(false);
+  const [timer, setTimer] = useState(false);
+  const toggleTimer = useCallback(() => setTimer((on) => !on), []);
 
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').then((registration) => {
+    // Only in production: caching dev bundles makes local changes look stale.
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      navigator.serviceWorker.register('/sw.js').then((registration) => {
         console.log('Service Worker registered with scope:', registration.scope);
-        // console.log(registration.getNotifications());
-        // registration.showNotification('Service Worker installed.');
       }).catch((error) => {
         console.error('Service Worker registration failed:', error);
       });
@@ -27,9 +27,9 @@ export default function Home() {
         p-6 h-screen
         bg-gradient-to-t from-amber-200 via-amber-100 to-amber-50">
         {timer ? (
-          <Timer toggleTimer={(): void => toggleTimer(!timer)} />
+          <Timer toggleTimer={toggleTimer} />
         ) : (
-          <TimerForm toggleTimer={(): void => toggleTimer(!timer)} />
+          <TimerForm toggleTimer={toggleTimer} />
         )}
       </main>
     </>
