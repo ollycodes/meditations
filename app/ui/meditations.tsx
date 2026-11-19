@@ -95,6 +95,11 @@ export function Timer({ toggleTimer }: TimerProps) {
   const [displayTime, setDisplayTime] = useState<number>(seconds);
   const [paused, setPaused] = useState<boolean>(false);
   const [dimmed, setDimmed] = useState<boolean>(false);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dimmed', dimmed);
+    return () => document.documentElement.classList.remove('dimmed');
+  }, [dimmed]);
   const remainingTimeRef = useRef<number>(seconds * 1000);
   const bellsRef = useRef<number[] | null>(null);
   const startTimeRef = useRef<string>('');
@@ -175,7 +180,7 @@ export function Timer({ toggleTimer }: TimerProps) {
   const progress = seconds > 0 ? Math.min(100, (1 - displayTime / seconds) * 100) : 0;
 
   return (
-    <div className='flex flex-col gap-3'>
+    <div className='flex flex-col gap-3' data-paused={paused || undefined}>
       <h1 className='text-center text-2xl'>
         {sessionMinutes} {sessionMinutes === 1 ? 'minute' : 'minutes'} of stillness
       </h1>

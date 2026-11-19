@@ -8,12 +8,12 @@ export const metadata: Metadata = {
 };
 
 // viewport-fit=cover lets the page draw behind Safari's floating toolbar and
-// the notch; theme-color tints the browser's own bars to match the top.
+// the notch; theme-color tints the browser's own bars to match the page edges.
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#fffbeb",
+  themeColor: "#fde68a",
 };
 
 export default function RootLayout({

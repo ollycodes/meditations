@@ -20,6 +20,7 @@ A small, installable meditation timer for the web. Pick a duration, press start,
 - **Keeps the screen awake** during a session ([Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API)), plus a **dim mode** so the phone can rest face-up without lighting up the room
 - **Session history**: total sessions and minutes, stored locally on the device
 - **Installable PWA** that works offline once loaded
+- **Sunlight theme**: warm yellow with a soft glow of light behind the content that slowly breathes during a session (still when paused or with reduced motion on)
 
 ## How it works
 

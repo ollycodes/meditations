@@ -25,10 +25,11 @@ export default function Home() {
       {/* dvh, not vh: on phones 100vh is taller than the visible area while the
           browser toolbars are showing, which made the page scroll and jump. */}
       <main
-        className="h-dvh overflow-y-auto overscroll-none flex flex-col
+        className="relative h-dvh overflow-y-auto overscroll-none flex flex-col
         px-4 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]
-        bg-gradient-to-t from-amber-200 via-amber-100 to-amber-50">
-        <div className="w-full max-w-sm m-auto">
+        bg-amber-200">
+        <div className={`sun ${timer ? 'sun-breathe' : ''}`} aria-hidden="true" />
+        <div className="relative w-full max-w-sm m-auto">
           {timer ? (
             <Timer toggleTimer={toggleTimer} />
           ) : (
