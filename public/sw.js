@@ -1,4 +1,4 @@
-const CACHE_NAME = 'meditations-v2';
+const CACHE_NAME = 'meditations-v3';
 
 // Only files that actually exist at these paths. Next.js CSS/JS bundles are
 // content-hashed under /_next/static, so they're cached at runtime instead.

@@ -30,10 +30,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Simple Meditations" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+        <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
         <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="192x192" href="/icons/android-chrome-192x192.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
-        <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#fcd34d" />
+        <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#fb923c" />
         <meta name="application-name" content="Meditations" />
         <meta name="msapplication-TileColor" content="#fde68a" />
         <meta name="msapplication-TileImage" content="/icons/mstile-144x144.png" />
