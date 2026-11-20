@@ -1,5 +1,8 @@
 import type { MetadataRoute } from 'next';
 
+// Generated once at build time (required for the static export).
+export const dynamic = 'force-static';
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Simple Meditations',
@@ -55,6 +58,20 @@ export default function manifest(): MetadataRoute.Manifest {
         "src": "icons/android-chrome-512x512.png",
         "sizes": "512x512",
         "type": "image/png"
+      },
+      // The icons are full-bleed with the sun well inside the safe zone, so
+      // Android can crop them to any shape.
+      {
+        "src": "icons/android-chrome-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "maskable"
+      },
+      {
+        "src": "icons/android-chrome-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "maskable"
       }
     ],
   }
