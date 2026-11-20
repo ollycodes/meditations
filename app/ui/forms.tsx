@@ -118,6 +118,14 @@ export function TimerForm({ toggleTimer }: TimerFormProps) {
           </>
         )}
       </p>
+
+      <a
+        href='https://github.com/ollycodes/meditations'
+        target='_blank'
+        rel='noopener noreferrer'
+        className='self-center text-sm font-light underline underline-offset-4
+          decoration-orange-300 hover:decoration-orange-500 transition-colors'
+      >View the source on GitHub</a>
     </div>
   )
 }
