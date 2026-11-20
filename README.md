@@ -34,24 +34,46 @@ A small, installable meditation timer for the web. Pick a duration, press start,
 
 Built with Next.js, React, TypeScript and Tailwind CSS. Deployed as a static site on Netlify.
 
-## What I learned
+## Retrospective
 
-The goal was a meditation timer you could start, lock your phone, and trust to ring at the end. Building it taught me where the web platform stops.
+### Why I built it
 
-**Mobile operating systems suspend web pages when the screen turns off.** iOS and Android freeze background tabs and installed PWAs to save battery: timers, Web Workers and audio included. Service workers can't schedule work for later, and Web Push needs a server to wake the device. So a web app alone can't reliably ring a bell at a set time with the screen off. A native app can, because it can schedule a local notification or alarm with the OS.
+Simple Meditations is a meditation web app inspired by an iOS app I found myself using a lot during college, [Oak](https://www.oak.spa/). It was my first project using React and Next.js, and my first time using a CSS framework like Tailwind CSS.
 
-Instead of fighting that, the final version designs around it:
+### A timer you can trust with your eyes closed
 
-1. **Keep the screen on, but make that comfortable.** A wake lock plus a near-black dim mode.
-2. **Never be wrong about the time.** The countdown is calculated from an absolute end time, so if the page is suspended anyway, it shows the correct time (and finishes the session) as soon as you come back.
-3. **Say so honestly.** If a browser doesn't support wake locks, the timer tells you to keep the screen open.
+At first, I just wanted to see if I could make a simple timer on the web. Then I wanted to make that timer dependable for someone who is about to close their eyes for a set amount of time, and who might well fall asleep halfway through!
 
-Other things this project taught me:
+Knowing what I know now, that was an overcomplicated goal for a web app. Getting the timer itself right was the easy part: I moved it into a Web Worker so it wouldn't be slowed down by the page, and measured elapsed time with `performance.now()` instead of counting `setInterval` ticks, which drift. The hard part was letting the person know the session was over. The app works fine on desktop, but not on phones, where people tend to turn their screens off.
 
-- How Web Workers, service workers and the Notifications API fit together, and their quirks on each platform (e.g. Android requiring `ServiceWorkerRegistration.showNotification`)
-- Caching strategies for a PWA, and how one missing file in `cache.addAll` silently breaks offline support
-- React effect dependencies: an unstable value in a dependency array caused the timer worker to restart every second
-- Keeping server-rendered pages and browser-only APIs (`localStorage`, `navigator`) apart in Next.js
+### Where the web stops
+
+Mobile operating systems suspend web pages when the screen turns off. iOS and Android freeze background tabs and installed PWAs to save battery, including their timers, Web Workers and audio. Service workers can't schedule work for later either, and Web Push needs a server to wake the device. So a web app alone can't reliably ring a bell at a set time with the screen off. A native app can, because it can ask the OS to schedule a local notification or alarm.
+
+(Technically, I could have generated an audio track that plays for the whole session, keeping the page alive by taking over the phone's media controls. But I'm not an audio engineer, it goes against the calm, simple experience I wanted, and from my research it isn't reliable anyway.)
+
+### What I ended up with
+
+Instead of fighting the platform, the final version works with it:
+
+1. **Keep the screen on, but make that comfortable.** The app holds a screen wake lock during a session, and a **Dim screen** button switches to a near-black view. On an OLED screen, black pixels are switched off, so it's a clean solution with little battery drain.
+2. **Never be wrong about the time.** `performance.now()` was a good fit while the page was running, but it can't help while the page is frozen. The countdown is now calculated from an absolute end time, so if the phone suspends the page anyway, the timer shows the correct time (and finishes the session) as soon as you come back.
+3. **Be honest about it.** If a browser can't keep the screen awake, the timer says so.
+
+### Being selective about dependencies
+
+I came to JavaScript from Python. The React tutorial felt as polished as the Django tutorial, so I felt ready to pick up Next.js. What I didn't anticipate was how much faster the JavaScript ecosystem moves than the Python one I was used to. There is polish, but the documentation can be ambiguous, breaking changes and updates land quickly, and many packages are in the middle of refactors.
+
+This repository shows it: it started on Next.js 14.2.13 in September 2024, has had 42 Dependabot pull requests merged since, and moved two major versions to Next.js 16, which removed the `next lint` command the project's lint script relied on. That taught me not to pick up a package just because it makes my current problem easier, and to count the cost of keeping it up to date.
+
+### Smaller lessons from finishing it
+
+Coming back to the project to finish it as v1.0 turned up a few bugs worth remembering:
+
+- One missing file in the service worker's `cache.addAll` list silently disabled offline support.
+- An unstable value in a React effect's dependency array restarted the timer worker every second.
+- Session history was saved to `localStorage` under the key `"[object Object]"` because the object was passed instead of its name.
+- Android Chrome doesn't allow `new Notification()` from a page; notifications have to go through the service worker.
 
 ## Running locally
 
