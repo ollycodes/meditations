@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState, useEffect, useRef } from 'react';
 import { showNotification, useWakeLock } from '@/app/ui/pwa';
-import { azeretMono } from '@/app/fonts';
+import { card, softButton, startButton, stopButton } from '@/app/ui/styles';
 
 export const JOURNEY_KEY = 'journey';
 
@@ -64,6 +64,24 @@ function finishSession(minutes: number, startTime: string) {
   updateSessionInfo(minutes, startTime);
 }
 
+// Fraunces has proportional digits, so each character gets a fixed-width
+// slot; otherwise the clock would wobble every second.
+function Clock({ time }: { time: string }) {
+  return (
+    <>
+      <span className='sr-only'>{time}</span>
+      <span aria-hidden='true'>
+        {[...time].map((char, i) => (
+          <span
+            key={i}
+            className={`inline-block text-center ${char === ':' ? 'w-[0.3em]' : 'w-[0.6em]'}`}
+          >{char}</span>
+        ))}
+      </span>
+    </>
+  );
+}
+
 const pretty = (num: number): string => {
   return (num < 10) ? '0' + num : num.toString();
 }
@@ -77,6 +95,11 @@ export function Timer({ toggleTimer }: TimerProps) {
   const [displayTime, setDisplayTime] = useState<number>(seconds);
   const [paused, setPaused] = useState<boolean>(false);
   const [dimmed, setDimmed] = useState<boolean>(false);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dimmed', dimmed);
+    return () => document.documentElement.classList.remove('dimmed');
+  }, [dimmed]);
   const remainingTimeRef = useRef<number>(seconds * 1000);
   const bellsRef = useRef<number[] | null>(null);
   const startTimeRef = useRef<string>('');
@@ -126,88 +149,98 @@ export function Timer({ toggleTimer }: TimerProps) {
     }
   }, [paused, seconds, toggleTimer])
 
-  const hh = pretty(Math.floor(displayTime / 3600));
-  const mm = pretty(Math.floor(displayTime / 60 % 60));
+  const hours = Math.floor(displayTime / 3600);
+  const minutes = Math.floor(displayTime / 60 % 60);
   const ss = pretty(Math.floor(displayTime % 60));
+  // Like the home screen's plain "5": 4:58, or 1:04:58 for long sessions.
+  const time = hours > 0 ? `${hours}:${pretty(minutes)}:${ss}` : `${minutes}:${ss}`;
 
   useEffect(() => {
-    document.title = paused ? `Paused · ${hh}:${mm}:${ss}` : `${hh}:${mm}:${ss}`;
-  }, [hh, mm, ss, paused]);
+    document.title = paused ? `Paused · ${time}` : time;
+  }, [time, paused]);
   useEffect(() => () => { document.title = 'Simple Meditations'; }, []);
 
   if (dimmed) {
     return (
       <button
         type='button'
-        className={`${azeretMono.className}
-          fixed inset-0 z-50 w-full h-full
+        className={`fixed inset-0 z-50 w-full h-full
           flex flex-col items-center justify-center
-          bg-black text-neutral-700 text-5xl`}
+          bg-black text-neutral-700 text-6xl font-light`}
         onClick={() => setDimmed(false)}
         aria-label='Screen dimmed. Tap to show controls.'
       >
-        {hh}:{mm}:{ss}
-        <span className='mt-6 text-base font-sans'>Tap to show controls</span>
+        <Clock time={time} />
+        <span className='mt-6 text-base'>Tap to show controls</span>
       </button>
     );
   }
 
+  const sessionMinutes = Math.round(seconds / 60);
+  const progress = seconds > 0 ? Math.min(100, (1 - displayTime / seconds) * 100) : 0;
+
   return (
-    <>
-      <div
-        className="flex flex-col items-center justify-center w-full max-w-lg h-screen">
-        <label
+    <div className='flex flex-col gap-3' data-paused={paused || undefined}>
+      <h1 className='text-center text-2xl'>
+        {sessionMinutes} {sessionMinutes === 1 ? 'minute' : 'minutes'} of stillness
+      </h1>
+
+      <section className={`${card} p-4 flex flex-col items-center gap-4`}>
+        <span className='font-light' aria-live='polite'>
+          {paused ? 'Paused' : 'Time remaining'}
+        </span>
+        <div
           id='countdown-label'
-          aria-label={`${paused ? 'Timer Currently Paused.' : 'Timer currently Counting Down.'}`}
-          className={`${azeretMono.className}
-            py-6 w-full mb-10
-            bg-indigo-400 text-white
-            border-solid border-2 border-indigo-500
-            text-center break-all text-5xl
-            rounded-lg`}>
-          {hh}:{mm}:{ss}
-        </label>
+          role='timer'
+          aria-label={paused ? 'Timer paused.' : 'Timer counting down.'}
+          className={`text-6xl font-light ${paused ? 'opacity-50' : ''} transition-opacity`}>
+          <Clock time={time} />
+        </div>
+        {/* Same track and fill colors as the volume sliders. */}
+        <div
+          className='w-full h-2 rounded-full bg-orange-200 overflow-hidden'
+          role='progressbar'
+          aria-label='Session progress'
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(progress)}
+        >
+          <div
+            className='h-full rounded-full bg-orange-400 transition-[width] duration-300'
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </section>
 
+      <button
+        type='button'
+        className={`${paused ? startButton : stopButton} py-6 text-2xl`}
+        onClick={() => setPaused(!paused)}
+        aria-label={paused ? 'Resume meditation session.' : 'Pause meditation session.'}
+      >{paused ? 'Resume' : 'Pause'}</button>
+
+      <div className='grid grid-cols-2 gap-3'>
         <button
           type='button'
-          className={`${paused ?
-            "bg-green-200 hover:bg-green-300 active:bg-green-400 border-green-300" :
-            "bg-pink-200 hover:bg-pink-300 active:bg-pink-400 border-pink-300"}
-            py-6 pw-10 w-full
-            text-white text-center text-5xl
-            border-solid border-2
-            rounded-lg`}
-          onClick={() => setPaused(!paused)}
-          aria-label={paused ? 'Resume Meditation Session.' : 'Pause Meditation Session.'}
-        >{paused ? 'Resume' : 'Pause'}</button>
-
-        <button
-          type='button'
-          className='py-4 mt-5 pw-10 w-full
-            bg-pink-300 hover:bg-pink-400 active:bg-pink-500 border-pink-400
-            text-white text-center text-5xl
-            border-solid border-2 rounded-lg'
+          className={`${softButton} py-3`}
           onClick={() => {
             setPaused(true)
             toggleTimer()
           }}
         >Cancel</button>
-
         <button
           type='button'
-          className='py-3 mt-5 w-full
-            bg-neutral-800 hover:bg-neutral-900 text-neutral-300
-            text-center text-xl rounded-lg'
+          className={`${softButton} py-3`}
           onClick={() => setDimmed(true)}
           aria-label='Dim the screen while the timer keeps running.'
         >Dim screen</button>
+      </div>
 
-        <p className='mt-4 text-sm text-center text-neutral-600'>
-          {wakeLockSupported
-            ? 'Your screen will stay on until the session ends.'
-            : 'Keep this screen open. This browser can\'t keep the screen awake, and phones pause web timers when the screen turns off.'}
-        </p>
-      </div >
-    </>
+      <p className='text-sm font-light text-center'>
+        {wakeLockSupported
+          ? 'Your screen will stay on until the session ends.'
+          : 'Keep this screen open. This browser can\'t keep the screen awake, and phones pause web timers when the screen turns off.'}
+      </p>
+    </div>
   );
 }

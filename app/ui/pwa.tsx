@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { softButton } from '@/app/ui/styles';
 
 export const checkNotification = (): NotificationPermission | null => {
   return (typeof Notification !== 'undefined' ? Notification.permission : null)
@@ -64,113 +65,84 @@ export function useWakeLock(active: boolean): boolean {
   return supported;
 }
 
-export function PermissionRequest() {
-  const [permission, setPermission] = useState<string | null>(checkNotification);
+export function NotificationSetting() {
+  const [permission, setPermission] = useState<NotificationPermission | null>(checkNotification);
 
+  // Follow changes made in the browser's own site settings.
   useEffect(() => {
-    const check = async () => {
-      setPermission(checkNotification);
+    let status: PermissionStatus | undefined;
+    navigator.permissions?.query({ name: 'notifications' })
+      .then((s) => {
+        status = s;
+        s.onchange = () => setPermission(checkNotification());
+      })
+      .catch(() => { });
+    return () => {
+      if (status) status.onchange = null;
+    };
+  }, []);
 
-      if (!permission) {
-        return
-      }
-
-      try {
-        const permissionStatus = (await navigator.permissions?.query({ name: 'notifications' }) || null)
-
-        if (permissionStatus) {
-          permissionStatus.onchange = () => {
-            setPermission(permissionStatus.state);
-          };
-          setPermission(permissionStatus.state);
-        }
-      } catch (err) {
-        console.log('error:', err)
-        setPermission(null);
-      }
-    }
-    check();
-  }, [permission]);
-
-  const showPermissions = () => {
+  const control = () => {
     switch (permission) {
-      case 'granted': {
-        return (
-          <div className='flex flex-row justify-between items-center w-3/4'>
-            <label>Push Notifications enabled.</label>
-            <button
-              className='bg-orange-50 hover:bg-orange-200 
-          border-solid border-2 border-orange-200'
-              onClick={() => {
-                showNotification('How\'s it hanging? 😎', {
-                  body: '🌊 The mind is a wonderful place.',
-                  icon: '/icons/apple-touch-icon.png'
-                })
-              }}
-            >Test</button>
-          </div>)
-      }
-      case null: {
-        return (<p className='w-3/4'>Push notifications not supported.</p>)
-      }
-      case 'default': {
+      case 'granted':
         return (
           <button
-            className='bg-red-200 px-2
-            hover:bg-red-300 active:bg-red-400
-            border-solid border-1 border-red-300
-            rounded-md'
+            type='button'
+            className={`${softButton} px-3 py-1 text-sm`}
+            onClick={() => showNotification('How\'s it hanging? 😎', {
+              body: '🌊 The mind is a wonderful place.',
+              icon: '/icons/apple-touch-icon.png'
+            })}
+          >Test</button>
+        );
+      case 'default':
+        return (
+          <button
+            type='button'
+            className={`${softButton} px-3 py-1 text-sm`}
             onClick={async () => {
               try {
-                const newPermission = (await Notification?.requestPermission() || null);
-                setPermission(newPermission);
+                setPermission(await Notification.requestPermission());
               } catch (err) {
-                console.log('Permission registration failed:', err);
+                console.log('Permission request failed:', err);
               }
-            }}>Enable Push Notifications</button>
-        )
-      }
-      case 'denied': {
-        return (<p>Push Notifications are disabled.</p>)
-      }
+            }}
+          >Enable</button>
+        );
+      case 'denied':
+        return <span className='text-sm font-light'>Blocked in browser</span>;
+      default:
+        return <span className='text-sm font-light'>Not supported</span>;
     }
   }
 
   return (
-    <div className='py-1 my-2 w-full flex flex-col justify-center items-center'>
-      {showPermissions()}
+    <div className='flex items-center justify-between'>
+      <div className='flex flex-col'>
+        <span>Notifications</span>
+        <span className='text-sm font-light'>
+          {permission === 'granted' ? 'On when a session ends' : 'Alert when a session ends'}
+        </span>
+      </div>
+      {control()}
     </div>
   );
 }
 
 export function InstallPrompt() {
-  // Only rendered once the settings menu is opened, so `window` is available.
+  // Only rendered once settings are opened, so `window` is available.
   const [isIOS] = useState(() => /iPad|iPhone|iPod/.test(navigator.userAgent) && !('MSStream' in window))
   const [isStandalone] = useState(() => window.matchMedia('(display-mode: standalone)').matches)
 
-  if (isStandalone) {
+  if (!isIOS || isStandalone) {
     return null
   }
 
   return (
-    <>
-      {isStandalone ? null : <div className='w-3/4'>
-        {isIOS && (
-          <>
-            <h3>Install as an App</h3>
-            <p>
-              To install this app on your iOS device, tap the share button below
-              <span role="img" aria-label="share icon">
-                {' ⎋ '}
-              </span>
-              and then tap &ldquo;Add to Home Screen&rdquo;
-              <span role="img" aria-label="plus icon">
-                {' '}➕{' '}
-              </span>.
-            </p>
-          </>
-        )}
-      </div>}
-    </>
+    <p className='text-sm font-light text-center'>
+      Install: tap Share
+      <span role='img' aria-label='share icon'>{' ⎋ '}</span>
+      then &ldquo;Add to Home Screen&rdquo;.
+    </p>
   )
 }

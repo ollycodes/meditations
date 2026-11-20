@@ -2,6 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Anything outside the page box (behind Safari's toolbars, overscroll) shows
+   the html background. The page is this same yellow at every edge, so the
+   browser bars blend in at the top and bottom. */
+html {
+  background-color: #fde68a; /* amber-200 */
+}
+/* The dim screen is black; keep the browser bars black with it. */
+html.dimmed {
+  background-color: #000;
+}
+
+/* Sunlight: a soft glow behind the content on a warm yellow sky. It fades
+   out well before the top and bottom edges so they stay solid amber-200. */
+.sun {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-origin: 50% 42%;
+  background: radial-gradient(
+    ellipse 120% 55% at 50% 42%,
+    #fffbeb 0%,               /* amber-50: the bright middle */
+    #fef3c7 30%,              /* amber-100 */
+    rgb(253 230 138 / 0) 65%  /* fades into the amber-200 sky */
+  );
+}
+/* During a session the light slowly swells and settles, like breathing. */
+@keyframes sun-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+.sun-breathe {
+  animation: sun-breathe 10s ease-in-out infinite;
+}
+main:has([data-paused]) .sun-breathe {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sun-breathe {
+    animation: none;
+  }
+}
+
 /* WebKit and Blink */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -12,4 +54,44 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* Range sliders in the orange palette. --fill is set inline to the value %. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 1.5rem;
+  background: transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: linear-gradient(to right, #fb923c var(--fill, 50%), #fed7aa var(--fill, 50%));
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 1.25rem;
+  width: 1.25rem;
+  margin-top: -0.375rem;
+  border-radius: 9999px;
+  background: #fb923c;
+  border: 2px solid #fff7ed;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+}
+input[type="range"]::-moz-range-track {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #fed7aa;
+}
+input[type="range"]::-moz-range-progress {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #fb923c;
+}
+input[type="range"]::-moz-range-thumb {
+  height: 1rem;
+  width: 1rem;
+  border-radius: 9999px;
+  background: #fb923c;
+  border: 2px solid #fff7ed;
 }
