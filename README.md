@@ -32,7 +32,7 @@ A small, installable meditation timer for the web. Pick a duration, press start,
 | Notifications | `app/ui/pwa.tsx` (`showNotification`) | Sends notifications through the service worker (required on Android), falling back to `new Notification()`. |
 | Service worker | `public/sw.js` | Pre-caches the shell and bell sound. Network-first for pages, cache-first for hashed assets. |
 
-Built with Next.js, React, TypeScript and Tailwind CSS. Deployed as a static site on Netlify.
+Built with Next.js, React, TypeScript and Tailwind CSS. It's exported as plain static files (`output: 'export'`) and deployed on Netlify with the settings in `netlify.toml`, so no server code runs at the host.
 
 ## Retrospective
 
@@ -82,7 +82,7 @@ npm install
 npm run dev
 ```
 
-Then open [https://localhost:3000](https://localhost:3000). The dev server uses HTTPS so notification and wake lock APIs are available. The service worker only registers in production builds:
+Then open [https://localhost:3000](https://localhost:3000). The dev server uses HTTPS so notification and wake lock APIs are available. The service worker only registers in production builds. To build the static site into `out/` and preview it:
 
 ```bash
 npm run build && npm start
